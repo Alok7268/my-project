@@ -61,6 +61,13 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
   const [password, setPassword] = React.useState('');
   const [name, setName] = React.useState('');
   const navigate = useNavigate();
+
+  
+
+  const handleSignIn = () => {
+    navigate('/signin'); // ✅ Correct usage
+  };
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const { error } = await nhost.auth.signUp({
@@ -68,7 +75,7 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
       password,
       options: { displayName: name }
     });
-  
+
     if (error) {
       if (error.message === "User is already signed in") {
         alert('You are already signed in. Redirecting to login...');
@@ -81,7 +88,7 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
       navigate('/login'); // Redirect to the login page
     }
   };
-  
+
   return (
     <AppTheme {...props}>
       <CssBaseline enableColorScheme />
@@ -142,13 +149,20 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
                 variant="outlined"
               />
             </FormControl>
-            <br />
             <Button
               type="submit"
               fullWidth
               variant="contained"
             >
               Sign up
+            </Button>
+            <br />
+            <Button
+              fullWidth
+              variant="outlined"
+              onClick={handleSignIn}
+            >
+              Sign in Instead!
             </Button>
           </Box>
         </Card>

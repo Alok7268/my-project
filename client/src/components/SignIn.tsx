@@ -62,25 +62,10 @@ export default function SignIn(props: { disableCustomTheme?: boolean }) {
 
   // Sign Up Function
   // Inside handleSignUp function
-  const handleSignUp = async () => {
-    if (!email || !password) {
-      alert('Please enter both email and password to sign up.');
-      return;
-    }
-  
-    const { error } = await nhost.auth.signUp({ email, password });
-  
-    if (error) {
-      if (error.message.includes("User already exists")) {
-        alert("User already registered. Redirecting to Sign In...");
-        navigate('/signin'); // Ensure this matches your route
-      } else {
-        alert(`Error: ${error.message}`);
-      }
-    } else {
-      alert('🎉 Welcome! Your account has been created successfully. Please sign in to continue.');
-      navigate('/signin');
-    }
+  // Sign Up Function
+
+  const handleSignUp = () => {
+    navigate('/signup'); // ✅ Correct usage
   };
   
 
@@ -136,12 +121,13 @@ export default function SignIn(props: { disableCustomTheme?: boolean }) {
               <Button type="submit" fullWidth variant="contained">
                 Sign in
               </Button>
+              <br />
               <Button
                 fullWidth
                 variant="outlined"
                 onClick={handleSignUp}
               >
-                Sign up
+                New User? Sign up here.
               </Button>
             </Stack>
           </Box>
