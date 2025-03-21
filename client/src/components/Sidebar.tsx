@@ -1,5 +1,5 @@
 import React from 'react';
-import { Settings, BookMarked, Home, type LucideIcon, User } from 'lucide-react';
+import { Settings, BookMarked, Home, type LucideIcon, User, LayoutGrid } from 'lucide-react';
 import Button from '@mui/material/Button';
 import AppTheme from '../theme/AppTheme';
 import { useUserData, useSignOut } from '@nhost/react';
@@ -16,7 +16,7 @@ const tabs: { id: TabType; icon: LucideIcon; label: string }[] = [
   { id: 'home', icon: Home, label: 'Home' },
   { id: 'saved', icon: BookMarked, label: 'Saved' },
   { id: 'preferences', icon: Settings, label: 'Preferences' },
-  { id: 'personalized', icon: Settings, label: 'Personalized Feed' },
+  { id: 'personalized', icon: LayoutGrid, label: 'Your Feed' },
 ];
 
 export const Sidebar = React.memo(({ activeTab, setActiveTab }: SidebarProps) => {
