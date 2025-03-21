@@ -7,6 +7,7 @@ type ArticleProps = {
     title: string;
     summary: string;
     imageUrl: string;
+    url: string;
     sentiment: 'positive' | 'neutral' | 'negative';
     isRead: boolean;
     isSaved: boolean;
@@ -18,7 +19,7 @@ type ArticleProps = {
 }
 
 export function ArticleCard({
-  article: { id, title, summary, imageUrl, sentiment, isRead, isSaved, categories },
+  article: { id, title, summary, imageUrl, url, sentiment, isRead, isSaved, categories },
   onToggleRead,
   onToggleSave,
   onShare,
@@ -30,8 +31,19 @@ export function ArticleCard({
   };
 
   return (
-    <div key={id} className={`bg-white rounded-lg shadow-md overflow-hidden ${isRead ? 'opacity-75' : ''}`}>
-      <img src={imageUrl} alt={title} className="w-full h-48 object-cover" />
+    <div key={id} className={`bg-white rounded-lg shadow-md overflow-hidden mb-2 ${isRead ? 'opacity-75' : ''}`}>
+      <a
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="block cursor-pointer"
+      >
+        <img 
+          src={imageUrl} 
+          alt={title} 
+          className="w-full h-48 object-cover hover:opacity-90 hover:brightness-110 transition-opacity"
+        />
+      </a>
       <div className="p-4">
         <div className="flex items-center justify-between mb-2">
           <div className="flex flex-wrap gap-2">

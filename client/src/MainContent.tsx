@@ -8,6 +8,7 @@ interface Article {
   title: string;
   summary: string;
   imageUrl: string;
+  url: string; // <-- Add this
   sentiment: 'positive' | 'neutral' | 'negative';
   isRead: boolean;
   isSaved: boolean;
@@ -41,6 +42,7 @@ function MainContent() {
         title: article.title,
         summary: article.description,
         imageUrl: article.urlToImage,
+        url: article.url,
         sentiment: 'neutral',
         isRead: false,
         isSaved: false,
@@ -82,6 +84,8 @@ function MainContent() {
     );
   };
 
+
+
   const renderContent = () => {
     if (loading) return <div>Loading articles...</div>;
     if (error) return <div>Error: {error}</div>;
@@ -94,7 +98,7 @@ function MainContent() {
             article={article}
             onToggleRead={handleToggleRead}
             onToggleSave={handleToggleSave}
-            onShare={() => {}}
+            onShare={() => { }}
           />
         ));
       case 'saved':
@@ -106,7 +110,7 @@ function MainContent() {
               article={article}
               onToggleRead={handleToggleRead}
               onToggleSave={handleToggleSave}
-              onShare={() => {}}
+              onShare={() => { }}
             />
           ));
       case 'preferences':
@@ -118,7 +122,10 @@ function MainContent() {
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+      <Sidebar
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+      />
       <main className="flex-1 overflow-auto p-6">
         {renderContent()}
       </main>
