@@ -8,24 +8,43 @@ interface Article {
   title: string;
   summary: string;
   imageUrl: string;
-  url: string; // <-- Add this
+  url: string;
   sentiment: 'positive' | 'neutral' | 'negative';
   isRead: boolean;
   isSaved: boolean;
   categories: string[];
 }
 
+interface PersonalizedFeedProps {
+  articles: Article[];
+}
+
+const PersonalizedFeed: React.FC<PersonalizedFeedProps> = ({ articles }) => {
+  return (
+    <div>
+      {articles.map((article) => (
+        <ArticleCard
+          key={article.id}
+          article={article}
+          onToggleRead={() => {}}
+          onToggleSave={() => {}}
+          onShare={() => {}}
+        />
+      ))}
+    </div>
+  );
+};
+
 function MainContent() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [activeTab, setActiveTab] = useState<'home' | 'saved' | 'preferences'>('home');
+  const [activeTab, setActiveTab] = useState<'home' | 'saved' | 'preferences' | 'personalized'>('home');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Moved `fetchArticles` outside to avoid scoping issues
   const fetchArticles = async (selectedCategories: string[]) => {
     try {
-      setLoading(true); // Added to ensure loading state resets
+      setLoading(true);
       const query = selectedCategories.length
         ? selectedCategories.join(',')
         : '';
@@ -50,7 +69,7 @@ function MainContent() {
       }));
 
       setArticles(formattedArticles);
-      setError(null); // Clear error state on success
+      setError(null);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -59,7 +78,7 @@ function MainContent() {
   };
 
   useEffect(() => {
-    fetchArticles(selectedCategories); // Corrected: Now sends `selectedCategories` in initial fetch too
+    fetchArticles(selectedCategories);
   }, [selectedCategories]);
 
   const handleToggleRead = (id: string) => {
@@ -84,8 +103,6 @@ function MainContent() {
     );
   };
 
-
-
   const renderContent = () => {
     if (loading) return <div>Loading articles...</div>;
     if (error) return <div>Error: {error}</div>;
@@ -98,7 +115,7 @@ function MainContent() {
             article={article}
             onToggleRead={handleToggleRead}
             onToggleSave={handleToggleSave}
-            onShare={() => { }}
+            onShare={() => {}}
           />
         ));
       case 'saved':
@@ -110,11 +127,14 @@ function MainContent() {
               article={article}
               onToggleRead={handleToggleRead}
               onToggleSave={handleToggleSave}
-              onShare={() => { }}
+              onShare={() => {}}
             />
           ));
       case 'preferences':
-        return <Preferences selectedCategories={selectedCategories} onToggleCategory={handleToggleCategory} />;
+        return <Preferences
+                  selectedCategories={selectedCategories}
+                  onToggleCategory={handleToggleCategory}
+               />;
       default:
         return null;
     }

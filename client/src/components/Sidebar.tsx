@@ -1,11 +1,11 @@
 import React from 'react';
-import { Settings, BookMarked, Home, type LucideIcon } from 'lucide-react';
+import { Settings, BookMarked, Home, type LucideIcon, User } from 'lucide-react';
 import Button from '@mui/material/Button';
 import AppTheme from '../theme/AppTheme';
 import { useUserData, useSignOut } from '@nhost/react';
 import { useNavigate } from 'react-router-dom';
 
-type TabType = "home" | "saved" | "preferences";
+type TabType = "home" | "saved" | "preferences" | "personalized";
 
 type SidebarProps = {
   activeTab: TabType;
@@ -16,6 +16,7 @@ const tabs: { id: TabType; icon: LucideIcon; label: string }[] = [
   { id: 'home', icon: Home, label: 'Home' },
   { id: 'saved', icon: BookMarked, label: 'Saved' },
   { id: 'preferences', icon: Settings, label: 'Preferences' },
+  { id: 'personalized', icon: Settings, label: 'Personalized Feed' },
 ];
 
 export const Sidebar = React.memo(({ activeTab, setActiveTab }: SidebarProps) => {
@@ -55,7 +56,6 @@ export const Sidebar = React.memo(({ activeTab, setActiveTab }: SidebarProps) =>
             })}
           </nav>
         </div>
-
         <div className="text-center">
           <p className="text-sm text-gray-500 mb-2">
             {user ? <p>User ID: {user.email}</p> : <p>No USER</p>}
