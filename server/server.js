@@ -6,7 +6,8 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 const NEWS_API_BASE_URL = 'https://newsapi.org/v2';
-const API_KEY = 'd5336fa9284d4f29a443fca749c4d22e';
+// const API_KEY = 'd5336fa9284d4f29a443fca749c4d22e';
+const API_KEY = '36686ae62b914545b1e4e2afe2bc7b95';
 
 // Enable CORS for your React app's domain
 app.use(cors({ origin: 'http://192.168.1.12:3100' })); // Update with your React app's URL

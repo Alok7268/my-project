@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { ArticleCard } from './components/ArticleCard';
 import { Preferences } from './components/Preferences';
 import { Sidebar } from './components/Sidebar';
+import { useUserData } from '@nhost/react';
+import { nhost } from '../src/App';
 
 interface Article {
   id: string;
@@ -15,26 +17,6 @@ interface Article {
   categories: string[];
 }
 
-interface PersonalizedFeedProps {
-  articles: Article[];
-}
-
-const PersonalizedFeed: React.FC<PersonalizedFeedProps> = ({ articles }) => {
-  return (
-    <div>
-      {articles.map((article) => (
-        <ArticleCard
-          key={article.id}
-          article={article}
-          onToggleRead={() => {}}
-          onToggleSave={() => {}}
-          onShare={() => {}}
-        />
-      ))}
-    </div>
-  );
-};
-
 function MainContent() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -42,12 +24,86 @@ function MainContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const user = useUserData();
+
+  const fetchUserPreferences = async () => {
+    if (!user) return;
+
+    const { data, error } = await nhost.graphql.request(`
+      query GetUserPreferences {
+        preferences(where: { user_id: { _eq: "${user.id}" } }) {
+          topic
+        }
+      }
+    `);
+
+    if (error) {
+      console.error('Failed to fetch preferences:', error);
+      return;
+    }
+
+    if (data?.preferences?.[0]?.topic) {
+      setSelectedCategories(data.preferences[0].topic);
+    } else {
+      // Insert new preferences if none exist
+      await nhost.graphql.request(`
+        mutation InsertUserPreferences {
+          insert_preferences_one(object: {
+            user_id: "${user.id}",
+            topic: []
+          }) {
+            id
+          }
+        }
+      `);
+    }
+  };
+
+  const updateUserPreferences = async (categories: string[]) => {
+    if (!user) return;
+
+    const headers = {
+      'X-Hasura-Role': 'user', // or whatever role is needed
+    };
+
+    const mutation = `
+      mutation UpdateUserPreferences($display_name: String!, $topic: [String!]) {
+        insert_preferences_one(
+          object: {
+            display_name: $display_name
+            topic: $topic
+          }
+          on_conflict: {
+            constraint: preferences_pkey
+            update_columns: [topic]
+          }
+        ) {
+          display_name
+          topic
+        }
+      }
+    `;
+
+    const { error, data } = await nhost.graphql.request(mutation, {
+      display_name: user.displayName,
+      topic: categories
+    }, { headers });
+
+    if (error) {
+      console.error('Failed to update preferences:', error);
+    } else {
+      console.log('Updated Preferences:', data);
+    }
+  };
+
+  useEffect(() => {
+    if (user) fetchUserPreferences();
+  }, [user]);
+
   const fetchArticles = async (selectedCategories: string[]) => {
     try {
       setLoading(true);
-      const query = selectedCategories.length
-        ? selectedCategories.join(',')
-        : '';
+      const query = selectedCategories.length ? selectedCategories.join(',') : '';
 
       const response = await fetch(`http://192.168.1.12:3001/api/news?categories=${query}`);
 
@@ -81,26 +137,14 @@ function MainContent() {
     fetchArticles(selectedCategories);
   }, [selectedCategories]);
 
-  const handleToggleRead = (id: string) => {
-    setArticles((prevArticles) =>
-      prevArticles.map((article) =>
-        article.id === id ? { ...article, isRead: !article.isRead } : article
-      )
-    );
-  };
-
-  const handleToggleSave = (id: string) => {
-    setArticles((prevArticles) =>
-      prevArticles.map((article) =>
-        article.id === id ? { ...article, isSaved: !article.isSaved } : article
-      )
-    );
-  };
-
   const handleToggleCategory = (id: string) => {
-    setSelectedCategories((prev) =>
-      prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]
-    );
+    setSelectedCategories((prev) => {
+      const updatedCategories = prev.includes(id)
+        ? prev.filter((c) => c !== id)
+        : [...prev, id];
+      updateUserPreferences(updatedCategories); // Sync to database
+      return updatedCategories;
+    });
   };
 
   const renderContent = () => {
@@ -113,9 +157,9 @@ function MainContent() {
           <ArticleCard
             key={article.id}
             article={article}
-            onToggleRead={handleToggleRead}
-            onToggleSave={handleToggleSave}
-            onShare={() => {}}
+            onToggleRead={(id) => { }}
+            onToggleSave={(id) => { }}
+            onShare={() => { }}
           />
         ));
       case 'saved':
@@ -125,16 +169,18 @@ function MainContent() {
             <ArticleCard
               key={article.id}
               article={article}
-              onToggleRead={handleToggleRead}
-              onToggleSave={handleToggleSave}
-              onShare={() => {}}
+              onToggleRead={(id) => { }}
+              onToggleSave={(id) => { }}
+              onShare={() => { }}
             />
           ));
       case 'preferences':
-        return <Preferences
-                  selectedCategories={selectedCategories}
-                  onToggleCategory={handleToggleCategory}
-               />;
+        return (
+          <Preferences
+            selectedCategories={selectedCategories}
+            onToggleCategory={handleToggleCategory}
+          />
+        );
       default:
         return null;
     }
@@ -142,13 +188,8 @@ function MainContent() {
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-      <Sidebar
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-      />
-      <main className="flex-1 overflow-auto p-6">
-        {renderContent()}
-      </main>
+      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+      <main className="flex-1 overflow-auto p-6">{renderContent()}</main>
     </div>
   );
 }
