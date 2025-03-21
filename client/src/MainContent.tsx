@@ -21,37 +21,44 @@ function MainContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Moved `fetchArticles` outside to avoid scoping issues
+  const fetchArticles = async (selectedCategories: string[]) => {
+    try {
+      setLoading(true); // Added to ensure loading state resets
+      const query = selectedCategories.length
+        ? selectedCategories.join(',')
+        : '';
+
+      const response = await fetch(`http://192.168.1.12:3001/api/news?categories=${query}`);
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const formattedArticles: Article[] = data.articles.map((article: any) => ({
+        id: article.url,
+        title: article.title,
+        summary: article.description,
+        imageUrl: article.urlToImage,
+        sentiment: 'neutral',
+        isRead: false,
+        isSaved: false,
+        categories: article.source ? [article.source.name] : [],
+      }));
+
+      setArticles(formattedArticles);
+      setError(null); // Clear error state on success
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchArticles = async () => {
-        try {
-            const response = await fetch('http://192.168.1.12:3001/api/news'); // Pointing to your Express API
-
-            if (!response.ok) {
-                throw new Error(`Error: ${response.status}`);
-            }
-
-            const data = await response.json();
-            const formattedArticles: Article[] = data.articles.map((article: any) => ({
-                id: article.url,
-                title: article.title,
-                summary: article.description,
-                imageUrl: article.urlToImage,
-                sentiment: 'neutral',
-                isRead: false,
-                isSaved: false,
-                categories: article.source ? [article.source.name] : [],
-            }));
-            
-            setArticles(formattedArticles);
-        } catch (err: any) {
-            setError(err.message);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    fetchArticles();
-}, []);
+    fetchArticles(selectedCategories); // Corrected: Now sends `selectedCategories` in initial fetch too
+  }, [selectedCategories]);
 
   const handleToggleRead = (id: string) => {
     setArticles((prevArticles) =>
@@ -75,30 +82,19 @@ function MainContent() {
     );
   };
 
-  const getFilteredArticles = () => {
-    if (selectedCategories.length === 0) {
-      return articles;
-    }
-    return articles.filter((article) =>
-      article.categories.some((category) => selectedCategories.includes(category))
-    );
-  };
-
   const renderContent = () => {
     if (loading) return <div>Loading articles...</div>;
     if (error) return <div>Error: {error}</div>;
 
-    const filteredArticles = getFilteredArticles();
-
     switch (activeTab) {
       case 'home':
-        return filteredArticles.map((article) => (
+        return articles.map((article) => (
           <ArticleCard
             key={article.id}
             article={article}
             onToggleRead={handleToggleRead}
             onToggleSave={handleToggleSave}
-            onShare={() => { }}
+            onShare={() => {}}
           />
         ));
       case 'saved':
@@ -110,7 +106,7 @@ function MainContent() {
               article={article}
               onToggleRead={handleToggleRead}
               onToggleSave={handleToggleSave}
-              onShare={() => { }}
+              onShare={() => {}}
             />
           ));
       case 'preferences':

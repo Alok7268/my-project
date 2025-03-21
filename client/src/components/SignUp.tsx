@@ -16,6 +16,7 @@ import { styled } from '@mui/material/styles';
 import AppTheme from '../theme/AppTheme';
 import ColorModeSelect from '../theme/ColorModeSelect';
 import { nhost } from '../App';
+import { useNavigate } from 'react-router-dom';
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: 'flex',
@@ -63,7 +64,7 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [name, setName] = React.useState('');
-
+  const navigate = useNavigate();
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const { error } = await nhost.auth.signUp({
@@ -71,14 +72,20 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
       password,
       options: { displayName: name }
     });
-
+  
     if (error) {
-      alert(`Error: ${error.message}`);
+      if (error.message === "User is already signed in") {
+        alert('You are already signed in. Redirecting to login...');
+        navigate('/SignIn'); // Redirect to login if already signed in
+      } else {
+        alert(`Error: ${error.message}`);
+      }
     } else {
       alert('Sign-up successful! Please check your email for confirmation.');
+      navigate('/login'); // Redirect to the login page
     }
   };
-
+  
   return (
     <AppTheme {...props}>
       <CssBaseline enableColorScheme />
@@ -139,11 +146,7 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
                 variant="outlined"
               />
             </FormControl>
-            {/* <FormControlLabel
-              control={<Checkbox value="allowExtraEmails" color="primary" />}
-              label="I want to receive updates via email."
-            /> */}
-            <br></br>
+            <br />
             <Button
               type="submit"
               fullWidth

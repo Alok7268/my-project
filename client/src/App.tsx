@@ -9,7 +9,7 @@ import SignUp from './components/SignUp';
 import PrivateRoute from './components/PrivateRoute';
 import Dashboard from './components/Dashboard';
 import MainContent from './MainContent';
-
+import NotFound from './NotFound';
 const App = () => (
   <NhostProvider nhost={nhost}>
     <Router>
@@ -19,6 +19,7 @@ const App = () => (
         <Route path="/signup" element={<SignUp />} />
         <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
         <Route path="/main" element={<MainContent />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
   </NhostProvider>

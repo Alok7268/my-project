@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { nhost } from '../App';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -13,7 +14,6 @@ import MuiCard from '@mui/material/Card';
 import { styled } from '@mui/material/styles';
 import AppTheme from '../theme/AppTheme';
 import ColorModeSelect from '../theme/ColorModeSelect';
-
 const Card = styled(MuiCard)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
@@ -41,6 +41,7 @@ const SignInContainer = styled(Stack)(({ theme }) => ({
 export default function SignIn(props: { disableCustomTheme?: boolean }) {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
+  const navigate = useNavigate();
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,10 +49,16 @@ export default function SignIn(props: { disableCustomTheme?: boolean }) {
 
     if (error) {
       alert(`Error: ${error.message}`);
-    } else {
-      alert('Sign-in successful!');
+      if (error.message === "User is already signed in") {
+        navigate('/main');
+      }
     }
-  };
+    else {
+      alert('Sign-in successful!');
+      navigate('/main'); // Redirect to the main page
+    }
+  }
+
 
   return (
     <AppTheme {...props}>
