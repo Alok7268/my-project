@@ -9,7 +9,7 @@ type Category = {
 type PreferencesProps = {
   selectedCategories: string[];
   onToggleCategory: (id: string) => void;
-}
+};
 
 export function Preferences({ selectedCategories, onToggleCategory }: PreferencesProps) {
   const categories: Category[] = [
@@ -22,8 +22,8 @@ export function Preferences({ selectedCategories, onToggleCategory }: Preference
   ];
 
   return (
-    <div className="p-6">
-      <h2 className="text-2xl font-bold mb-6">News Preferences</h2>
+    <div className="p-6 bg-white text-gray-800">
+      <h2 className="text-2xl font-bold mb-6 text-gray-900">News Preferences</h2>
       <div className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
           {categories.map((category) => (
@@ -32,7 +32,7 @@ export function Preferences({ selectedCategories, onToggleCategory }: Preference
               onClick={() => onToggleCategory(category.id)}
               className={`p-4 rounded-lg border-2 flex items-center space-x-3 ${
                 selectedCategories.includes(category.id)
-                  ? 'border-blue-500 bg-blue-50'
+                  ? 'border-blue-500 bg-blue-50 text-blue-600'
                   : 'border-gray-200 hover:border-gray-300'
               }`}
             >

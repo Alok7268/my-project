@@ -14,6 +14,7 @@ import MuiCard from '@mui/material/Card';
 import { styled } from '@mui/material/styles';
 import AppTheme from '../theme/AppTheme';
 import ColorModeSelect from '../theme/ColorModeSelect';
+
 const Card = styled(MuiCard)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
@@ -43,6 +44,7 @@ export default function SignIn(props: { disableCustomTheme?: boolean }) {
   const [password, setPassword] = useState<string>('');
   const navigate = useNavigate();
 
+  // Sign In Function
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     const { error } = await nhost.auth.signIn({ email, password });
@@ -52,12 +54,35 @@ export default function SignIn(props: { disableCustomTheme?: boolean }) {
       if (error.message === "User is already signed in") {
         navigate('/main');
       }
-    }
-    else {
+    } else {
       alert('Sign-in successful!');
       navigate('/main'); // Redirect to the main page
     }
-  }
+  };
+
+  // Sign Up Function
+  // Inside handleSignUp function
+  const handleSignUp = async () => {
+    if (!email || !password) {
+      alert('Please enter both email and password to sign up.');
+      return;
+    }
+  
+    const { error } = await nhost.auth.signUp({ email, password });
+  
+    if (error) {
+      if (error.message.includes("User already exists")) {
+        alert("User already registered. Redirecting to Sign In...");
+        navigate('/signin'); // Ensure this matches your route
+      } else {
+        alert(`Error: ${error.message}`);
+      }
+    } else {
+      alert('🎉 Welcome! Your account has been created successfully. Please sign in to continue.');
+      navigate('/signin');
+    }
+  };
+  
 
 
   return (
@@ -71,8 +96,9 @@ export default function SignIn(props: { disableCustomTheme?: boolean }) {
             variant="h4"
             sx={{ width: '100%', fontSize: 'clamp(2rem, 10vw, 2.15rem)' }}
           >
-            Sign in
+            Sign In & Sign Up
           </Typography>
+
           <Box
             component="form"
             onSubmit={handleSignIn}
@@ -105,14 +131,19 @@ export default function SignIn(props: { disableCustomTheme?: boolean }) {
                 onChange={(e) => setPassword(e.target.value)}
               />
             </FormControl>
-            <br></br>
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-            >
-              Sign in
-            </Button>
+
+            <Stack spacing={2}>
+              <Button type="submit" fullWidth variant="contained">
+                Sign in
+              </Button>
+              <Button
+                fullWidth
+                variant="outlined"
+                onClick={handleSignUp}
+              >
+                Sign up
+              </Button>
+            </Stack>
           </Box>
         </Card>
       </SignInContainer>
