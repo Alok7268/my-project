@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bookmark, Share2, CheckCircle } from 'lucide-react';
+import { Bookmark, Share2, CheckCircle, Smile, Meh, Frown } from 'lucide-react';
 
 type ArticleProps = {
   article: {
@@ -8,7 +8,7 @@ type ArticleProps = {
     summary: string;
     imageUrl: string;
     url: string;
-    sentiment: 'positive' | 'neutral' | 'negative';
+    sentiment: string;
     isRead: boolean;
     isSaved: boolean;
     categories: readonly string[];
@@ -24,18 +24,25 @@ export function ArticleCard({
   onToggleSave,
   onShare,
 }: ArticleProps) {
+
   const sentimentColors = {
-    positive: 'bg-green-100 text-green-800',
-    neutral: 'bg-gray-100 text-gray-800',
-    negative: 'bg-red-100 text-red-800',
+    positive: 'bg-green-100 text-green-800 border-green-400',
+    neutral: 'bg-gray-100 text-gray-800 border-gray-400',
+    negative: 'bg-red-100 text-red-800 border-red-400',
+  };
+
+  const sentimentIcons = {
+    positive: <Smile size={16} className="inline-block mr-1" />,
+    neutral: <Meh size={16} className="inline-block mr-1" />,
+    negative: <Frown size={16} className="inline-block mr-1" />,
   };
 
   return (
     <div
       key={id}
-      className={`bg-white rounded-lg shadow-md overflow-hidden mb-4 transition-all ${
-        isRead ? 'opacity-75 border-l-4 border-green-500' : 'hover:shadow-lg'
-      }`}
+      className={`bg-white rounded-lg shadow-md overflow-hidden mb-4 transition-all border-l-4 ${
+        sentimentColors[sentiment as keyof typeof sentimentColors] || ''
+      } ${isRead ? 'opacity-75' : 'hover:shadow-lg'}`}
     >
       <a
         href={url}
@@ -52,8 +59,10 @@ export function ArticleCard({
       <div className="p-4">
         <div className="flex items-center justify-between mb-2">
           <div className="flex flex-wrap gap-2">
-            <span className={`text-sm px-2 py-1 rounded-full ${sentimentColors[sentiment]}`}>
-              {sentiment.charAt(0).toUpperCase() + sentiment.slice(1)}
+            <span
+              className={`text-sm px-2 py-1 rounded-full font-medium flex items-center ${sentimentColors[sentiment as keyof typeof sentimentColors] || ''}`}
+            >
+              {sentimentIcons[sentiment as keyof typeof sentimentIcons]} {sentiment}
             </span>
             {categories.map((category) => (
               <span

@@ -11,7 +11,7 @@ interface Article {
   summary: string;
   imageUrl: string;
   url: string;
-  sentiment: 'positive' | 'neutral' | 'negative';
+  sentiment: string;
   isRead: boolean;
   isSaved: boolean;
   categories: string[];
@@ -144,7 +144,7 @@ function MainContent() {
           summary: article.description,
           imageUrl: article.urlToImage,
           url: article.url,
-          sentiment: 'neutral',
+          sentiment: article.sentiment,
           isRead,
           isSaved: savedArticles.some((savedArticle) => savedArticle.id === article.url),
           categories: article.source ? [article.source.name] : [],
