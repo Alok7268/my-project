@@ -1,16 +1,17 @@
 const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
+const Sentiment = require('sentiment'); // Import Sentiment library
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
 const NEWS_API_BASE_URL = 'https://newsapi.org/v2';
-// const API_KEY = 'd5336fa9284d4f29a443fca749c4d22e';
 const API_KEY = '36686ae62b914545b1e4e2afe2bc7b95';
 
-// Enable CORS for your React app's domain
-app.use(cors({ origin: 'http://192.168.1.12:3100' })); // Update with your React app's URL
+const sentiment = new Sentiment(); // Initialize sentiment instance
+
+app.use(cors({ origin: 'http://192.168.1.12:3100' }));
 
 app.get('/api/news', async (req, res) => {
     const { categories } = req.query;
@@ -31,10 +32,25 @@ app.get('/api/news', async (req, res) => {
         console.log(`[DEBUG] Formed API URL: ${apiUrl}`);
 
         const response = await axios.get(apiUrl);
+        const articles = response.data.articles || [];
 
-        console.log(`[SUCCESS] Data fetched successfully. Articles count: ${response.data.articles?.length || 0}`);
+        console.log(`[SUCCESS] Data fetched successfully. Articles count: ${articles.length}`);
 
-        res.json(response.data);
+        // Add sentiment analysis to each article
+        const articlesWithSentiment = articles.map(article => {
+            const sentimentResult = sentiment.analyze(article.title + ' ' + article.description);
+            let sentimentLabel = 'neutral';
+
+            if (sentimentResult.score > 2) {
+                sentimentLabel = 'positive';
+            } else if (sentimentResult.score < -2) {
+                sentimentLabel = 'negative';
+            }
+
+            return { ...article, sentiment: sentimentLabel };
+        });
+
+        res.json({ articles: articlesWithSentiment });
     } catch (error) {
         console.error(`[ERROR] Failed to fetch news data: ${error.message}`);
         if (error.response) {
