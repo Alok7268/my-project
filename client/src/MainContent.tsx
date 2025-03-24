@@ -30,25 +30,34 @@ function MainContent() {
   // Fetch user preferences
   const fetchUserPreferences = async () => {
     if (!user) return;
-
-    const { data, error } = await nhost.graphql.request(`
+    const token = await nhost.auth.getAccessToken();
+  
+    const { data, error } = await nhost.graphql.request(
+      `
       query GetUserPreferences {
         preferences(where: { display_name: { _eq: "${user.displayName}" } }) {
           topic
         }
       }
-    `);
-
+      `,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+  
     if (error) {
       console.error('Failed to fetch preferences:', error);
       return;
     }
-
+  
     if (data?.preferences?.[0]?.topic) {
       setSelectedCategories(data.preferences[0].topic);
     } else {
-      // Insert new preferences if none exist
-      await nhost.graphql.request(`
+      await nhost.graphql.request(
+        `
         mutation InsertUserPreferences {
           insert_preferences_one(object: {
             display_name: "${user.displayName}",
@@ -57,7 +66,14 @@ function MainContent() {
             id
           }
         }
-      `);
+        `,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
     }
   };
 
@@ -101,25 +117,31 @@ function MainContent() {
   // Fetch articles based on categories
   const fetchReadArticles = async () => {
     if (!user) return;
-
-    const { data, error } = await nhost.graphql.request(`
+    const token = await nhost.auth.getAccessToken();
+  
+    const { data, error } = await nhost.graphql.request(
+      `
       query GetUserReadArticles($display_name: String!) {
         user_read_article(where: { display_name: { _eq: $display_name } }) {
           id
           articles
         }
       }
-    `, {
-      display_name: user.displayName,
-    });
-
+      `,
+      { display_name: user.displayName },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+  
     if (error) {
       console.error('Failed to fetch read articles:', error);
       return;
     }
-
-    const readData = data?.user_read_article?.[0]?.articles || [];
-    return readData;
+  
+    return data?.user_read_article?.[0]?.articles || [];
   };
 
 
@@ -174,23 +196,30 @@ function MainContent() {
   // Fetch saved articles for the user
   const fetchSavedArticles = async () => {
     if (!user) return;
-
-    const { data, error } = await nhost.graphql.request(`
+    const token = await nhost.auth.getAccessToken();
+  
+    const { data, error } = await nhost.graphql.request(
+      `
       query GetUserSavedArticles($display_name: String!) {
         user_saved_article(where: { display_name: { _eq: $display_name } }) {
           id
           articles
         }
       }
-    `, {
-      display_name: user.displayName,
-    });
-
+      `,
+      { display_name: user.displayName },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+  
     if (error) {
       console.error('Failed to fetch saved articles:', error);
       return;
     }
-
+  
     const savedData = data?.user_saved_article?.[0]?.articles || [];
     setSavedArticles(savedData);
   };
