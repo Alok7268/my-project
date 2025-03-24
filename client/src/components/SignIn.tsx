@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { nhost } from '../App';
 import Box from '@mui/material/Box';
@@ -14,8 +14,7 @@ import MuiCard from '@mui/material/Card';
 import { styled } from '@mui/material/styles';
 import AppTheme from '../theme/AppTheme';
 import ColorModeSelect from '../theme/ColorModeSelect';
-// import { useAuth } from '@nhost/react';
-import { NhostProvider } from '@nhost/react';
+import { useAuthenticationStatus } from '@nhost/react';
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: 'flex',
@@ -46,33 +45,31 @@ export default function SignIn(props: { disableCustomTheme?: boolean }) {
   const [password, setPassword] = useState<string>('');
   const navigate = useNavigate();
 
+  const { isAuthenticated, isLoading } = useAuthenticationStatus();
+
+  // Redirect if user is already signed in
+  useEffect(() => {
+    if (!isLoading && isAuthenticated) {
+      navigate('/main'); // Redirect to main if authenticated
+    }
+  }, [isAuthenticated, isLoading, navigate]);
+
   // Sign In Function
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    const { session, error } = await nhost.auth.signIn({ email, password });
+    const { error } = await nhost.auth.signIn({ email, password });
 
     if (error) {
       alert(`Error: ${error.message}`);
-      if (error.message === "User is already signed in") {
-        navigate('/main');
-      }
     } else {
       alert('Sign-in successful!');
       navigate('/main'); // Redirect to the main page
     }
-
-    console.log('JWT Token:', session?.accessToken);
   };
-
-  // Sign Up Function
-  // Inside handleSignUp function
-  // Sign Up Function
 
   const handleSignUp = () => {
-    navigate('/signup'); // ✅ Correct usage
+    navigate('/signup');
   };
-
-
 
   return (
     <AppTheme {...props}>

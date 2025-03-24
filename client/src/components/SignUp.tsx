@@ -13,6 +13,7 @@ import AppTheme from '../theme/AppTheme';
 import ColorModeSelect from '../theme/ColorModeSelect';
 import { nhost } from '../App';
 import { useNavigate } from 'react-router-dom';
+import { useAuthenticationStatus } from '@nhost/react';
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: 'flex',
@@ -62,10 +63,17 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
   const [name, setName] = React.useState('');
   const navigate = useNavigate();
 
-  
+  const { isAuthenticated, isLoading } = useAuthenticationStatus();
+
+  // Redirect if already logged in
+  React.useEffect(() => {
+    if (!isLoading && isAuthenticated) {
+      navigate('/main'); // Redirect to `/main` if authenticated
+    }
+  }, [isAuthenticated, isLoading, navigate]);
 
   const handleSignIn = () => {
-    navigate('/signin'); // ✅ Correct usage
+    navigate('/signin');
   };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -77,15 +85,10 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
     });
 
     if (error) {
-      if (error.message === "User is already signed in") {
-        alert('You are already signed in. Redirecting to login...');
-        navigate('/SignIn'); // Redirect to login if already signed in
-      } else {
-        alert(`Error: ${error.message}`);
-      }
+      alert(`Error: ${error.message}`);
     } else {
       alert('Sign-up successful! Please check your email for confirmation.');
-      navigate('/login'); // Redirect to the login page
+      navigate('/signin'); // Redirect to Sign In after successful sign-up
     }
   };
 
