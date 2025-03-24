@@ -14,6 +14,8 @@ import MuiCard from '@mui/material/Card';
 import { styled } from '@mui/material/styles';
 import AppTheme from '../theme/AppTheme';
 import ColorModeSelect from '../theme/ColorModeSelect';
+// import { useAuth } from '@nhost/react';
+import { NhostProvider } from '@nhost/react';
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: 'flex',
@@ -47,7 +49,7 @@ export default function SignIn(props: { disableCustomTheme?: boolean }) {
   // Sign In Function
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    const { error } = await nhost.auth.signIn({ email, password });
+    const { session, error } = await nhost.auth.signIn({ email, password });
 
     if (error) {
       alert(`Error: ${error.message}`);
@@ -58,6 +60,8 @@ export default function SignIn(props: { disableCustomTheme?: boolean }) {
       alert('Sign-in successful!');
       navigate('/main'); // Redirect to the main page
     }
+
+    console.log('JWT Token:', session?.accessToken);
   };
 
   // Sign Up Function
@@ -67,7 +71,7 @@ export default function SignIn(props: { disableCustomTheme?: boolean }) {
   const handleSignUp = () => {
     navigate('/signup'); // ✅ Correct usage
   };
-  
+
 
 
   return (

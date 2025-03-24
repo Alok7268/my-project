@@ -16,7 +16,7 @@ const tabs: { id: TabType; icon: LucideIcon; label: string }[] = [
   { id: 'home', icon: Home, label: 'Home' },
   { id: 'saved', icon: BookMarked, label: 'Saved' },
   { id: 'preferences', icon: Settings, label: 'Preferences' },
-  { id: 'personalized', icon: LayoutGrid, label: 'Your Feed' },
+  // { id: 'personalized', icon: LayoutGrid, label: 'Your Feed' },
 ];
 
 export const Sidebar = React.memo(({ activeTab, setActiveTab }: SidebarProps) => {

@@ -127,6 +127,7 @@ function MainContent() {
     try {
       setLoading(true);
       const query = selectedCategories.length ? selectedCategories.join(',') : '';
+      // const response = await fetch(`/api/news?categories=${query}`);
       const response = await fetch(`http://192.168.1.12:3001/api/news?categories=${query}`);
 
       if (!response.ok) {

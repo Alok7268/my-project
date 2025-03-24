@@ -13,7 +13,11 @@ export default defineConfig({
   },
   server: {
     port: 3100, // You can change the port number
-    host: '192.168.1.12'
+    host: '192.168.1.12',
+    // host: '127.0.0.1',
+    allowedHosts: [
+      'd9ff-2401-4900-1cbd-680f-5c5e-94dd-d452-4966.ngrok-free.app'
+    ]
   },
   build: {
     sourcemap: true, //Generate sourcemap for debugging
