@@ -3,33 +3,38 @@
 ## API Details
 
 ## Example GraphQL Request:-
-```json
+```javascript
   const fetchGetRequestAPI = async () => {
-    if (!user) return;
+  if (!user) return;
 
-    const { data, error: graphqlError } = await nhost.graphql.request(`
-      query GetRequest($display_name: String!) {
+  const { data, error: graphqlError } = await nhost.graphql.request(
+    `
+      query GetRequest($check_table_name: String!) {
         user_read_article(where: { check_name: { _eq: $check_table_name } }) {
           column1
           column2
           column3
+          articles
         }
       }
-    `, {
-      variable_name: variable_data,
+    `,
+    {
+      check_table_name: variable_data  // Changed variable_name to match the query parameter
     },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-    if (graphqlError) {
-      console.error('Failed to fetch read articles:', graphqlError);
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      }
     }
+  );
 
-    const readData = data?.user_read_article?.[0]?.articles || [];
-    return readData;
-  };
+  if (graphqlError) {
+    return;  // Added return to prevent further execution on error
+  }
+
+  const readData = data?.user_read_article?.[0]?.articles || [];
+  return readData;
+};
 ```
 
 ### JWT Token Verification
